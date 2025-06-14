@@ -1,0 +1,789 @@
+/* Dashboard */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+.dashboard-card {
+    background-color: var(--component-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+}
+.dashboard-card h3 {
+    margin-top: 0;
+}
+
+.dashboard-card-metrics {
+    margin: 1rem 0;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+textarea.form-control {
+    resize: vertical;
+    overflow-y: auto;
+    min-height: 2.5rem;
+    transition: height 0.2s ease;
+}
+
+.dashboard-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    align-items: center;
+}
+
+.dashboard-card-actions .control-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+}
+.dashboard-card-actions .control-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Chart.js container style */
+.chart-container {
+    position: relative;
+    flex-grow: 1;
+    min-height: 180px;
+}
+
+.dashboard-metric-summary {
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Progress Bar */
+.progress-bar-container {
+    width: 100%;
+    height: 1.25rem;
+    background-color: var(--bg-color);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--primary-color);
+    transition: width 0.5s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Simple Bar Chart */
+.bar-chart-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.bar-chart-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bar-chart-label {
+    flex-basis: 100px;
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bar-chart-bar-wrapper {
+    flex-grow: 1;
+    background-color: var(--bg-color);
+    border-radius: 4px;
+    height: 1.25rem;
+    border: 1px solid var(--border-color);
+    position: relative;
+}
+
+.bar-chart-bar {
+    height: 100%;
+    background-color: var(--primary-color);
+    border-radius: 3px;
+    transition: width 0.5s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 0.5rem;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+.bar-chart-bar .value {
+    min-width: 15px;
+    text-align: right;
+}
+
+.bar-risk-low { background-color: var(--accent-color); }
+.bar-risk-medium { background-color: #ffc107; color: #1a1a1a }
+.bar-risk-high { background-color: #fd7e14; }
+.bar-risk-extreme { background-color: #dc3545; }
+
+/* Component Showcase */
+.component-showcase {
+    background-color: var(--component-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Audit Checklist Component */
+.audit-checklist {
+  list-style: none;
+  padding: 0;
+}
+
+.audit-item {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: var(--bg-color);
+  transition: box-shadow 0.2s ease;
+}
+
+.audit-item:focus-within {
+    box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.audit-item legend {
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 0 0.5rem;
+  display: block;
+}
+
+.audit-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.audit-item-main-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-grow: 1;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.audit-item-header input[type="checkbox"] {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+    accent-color: var(--primary-color);
+}
+
+.delete-item-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    opacity: 0.5;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.2s, background-color 0.2s, color 0.2s;
+    flex-shrink: 0;
+}
+
+.delete-item-btn:hover {
+    opacity: 1;
+    background-color: #dc3545;
+    color: white;
+}
+
+.delete-item-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.audit-item-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  padding-left: 2.25rem; /* Align with checkbox text */
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--focus-ring-color);
+}
+
+.status-indicator {
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.status-not-started { background-color: #6c757d; color: white; }
+.status-in-progress { background-color: #ffc107; color: #212529; }
+.status-completed { background-color: var(--accent-color); color: white; }
+.status-needs-review { background-color: #dc3545; color: white; }
+
+/* Controls (Add, Export, View) */
+.controls-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: var(--bg-color);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    align-items: center;
+}
+
+.add-item-form {
+    display: flex;
+    gap: 0.5rem;
+    flex-grow: 1;
+    min-width: 250px;
+}
+
+.add-item-form input {
+    flex-grow: 1;
+}
+
+.view-controls, .export-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.control-btn {
+    background-color: var(--component-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    font-size: 0.9rem;
+}
+
+.control-btn:hover {
+    background-color: var(--bg-color);
+}
+
+.control-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.controls-container.manufacturer-controls {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.main-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+}
+
+.main-controls .export-controls {
+    margin-left: auto;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Table View */
+.audit-table-container {
+    overflow-x: auto;
+}
+.audit-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+.audit-table th, .audit-table td {
+    border: 1px solid var(--border-color);
+    padding: 0.3rem 0.5rem;
+    text-align: left;
+    vertical-align: top;
+    font-size: 0.82rem;
+}
+.audit-table th {
+    background-color: var(--bg-color);
+}
+.audit-table input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+.audit-table .form-control {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.82rem;
+}
+
+.audit-table .delete-item-btn {
+    margin: 0 auto;
+}
+
+/* Risk Matrix */
+.risk-matrix-container {
+    overflow-x: auto;
+    padding-top: 1rem;
+    position: relative;
+    padding-bottom: 3rem; /* space for axis label */
+}
+.risk-matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    min-width: 800px;
+}
+.risk-matrix-table th, .risk-matrix-table td {
+    border: 1px solid var(--border-color);
+    text-align: center;
+    vertical-align: middle;
+    height: 100px;
+}
+.risk-matrix-table th {
+    background-color: var(--bg-color);
+    font-weight: 600;
+}
+.header-severity-axis {
+    text-align: right;
+    padding-right: 1rem;
+    writing-mode: horizontal-tb;
+    border: none !important;
+    background: transparent !important;
+}
+.header-likelihood {
+    width: 120px;
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+}
+.likelihood-axis-label {
+    position: absolute;
+    bottom: 0;
+    left: 120px; /* width of first column */
+    font-weight: 600;
+}
+.risk-cell {
+    position: relative;
+}
+.risk-cell-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px;
+    align-items: flex-start;
+    justify-content: center;
+}
+.risk-matrix-item {
+    background-color: var(--component-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    cursor: help;
+    box-shadow: var(--shadow-sm);
+    white-space: nowrap;
+}
+.risk-low { background-color: #28a74533; }
+.risk-medium { background-color: #ffc10733; }
+.risk-high { background-color: #fd7e1433; }
+.risk-extreme { background-color: #dc354533; }
+
+/* Action Item specific styles */
+.audit-item-row.overdue {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-left: 4px solid #dc3545;
+}
+
+.audit-item-row.overdue td {
+    position: relative;
+}
+
+/* Priority indicators */
+.priority-critical { color: #dc3545; font-weight: bold; }
+.priority-high { color: #fd7e14; font-weight: bold; }
+.priority-medium { color: #ffc107; }
+.priority-low { color: #6c757d; }
+
+/* Status indicators for action items */
+.status-open { background-color: #dc3545; color: white; }
+.status-in-progress { background-color: #ffc107; color: #212529; }
+.status-pending-review { background-color: #fd7e14; color: white; }
+.status-completed { background-color: var(--accent-color); color: white; }
+.status-cancelled { background-color: #6c757d; color: white; }
+
+/* Checklist Generator */
+.generator-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1rem;
+}
+.generator-controls .form-group {
+    flex-grow: 1;
+    min-width: 250px;
+    margin-bottom: 0;
+}
+
+/* Supplier Scorecard */
+.score-cell {
+    font-size: 1.1em;
+    text-align: center;
+}
+.score-excellent { background-color: rgba(40, 167, 69, 0.2); }
+.score-good { background-color: rgba(40, 167, 69, 0.1); }
+.score-average { background-color: rgba(255, 193, 7, 0.2); }
+.score-poor { background-color: rgba(220, 53, 69, 0.2); }
+
+/* Control Chart */
+.control-chart-container {
+    padding: 1rem 0;
+}
+.control-chart-summary {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    background-color: var(--bg-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+.control-chart-summary span {
+    font-weight: 500;
+}
+
+/* Floating Action Button */
+.fab-container {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 100;
+}
+
+.fab {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.fab:hover {
+    background-color: var(--primary-color-hover);
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.fab-menu {
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    background-color: var(--component-bg);
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    min-width: 200px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+.fab-menu.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.fab-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 0.9rem;
+}
+
+.fab-menu-item:first-child {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.fab-menu-item:last-child {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.fab-menu-item:hover {
+    background-color: var(--bg-color);
+}
+
+.fab-menu-item svg {
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+}
+
+@media print {
+    .fab-container {
+        display: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .fab-container {
+        bottom: 1rem;
+        right: 1rem;
+    }
+    
+    .fab {
+        width: 48px;
+        height: 48px;
+    }
+}
+
+/* Module Creator */
+.module-creator-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1100;
+}
+
+.module-creator-modal {
+    background-color: var(--component-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.module-creator-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+}
+
+.module-creator-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    opacity: 0.6;
+    cursor: pointer;
+    padding: 0.5rem;
+    margin: -0.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s, background-color 0.2s;
+}
+
+.close-btn:hover {
+    opacity: 1;
+    background-color: var(--border-color);
+}
+
+.close-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+.module-creator-content {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.module-creator-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.form-help {
+    font-size: 0.85rem;
+    color: var(--text-color);
+    opacity: 0.7;
+    margin-top: 0.25rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.module-creator-tools {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+}
+
+.module-creator-tools h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.tools-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.tools-help {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Admin Sidebar Module Management */
+.module-management-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.create-module-btn {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.module-toggle-label {
+    position: relative;
+}
+
+.module-title {
+    flex-grow: 1;
+}
+
+.delete-custom-module-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    margin-left: auto;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    line-height: 1;
+    opacity: 0.6;
+    transition: opacity 0.2s, background-color 0.2s;
+    min-width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-custom-module-btn:hover {
+    opacity: 1;
+    background-color: rgba(220, 53, 69, 0.1);
+}
