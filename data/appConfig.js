@@ -415,6 +415,10 @@ export const createCustomModule = (moduleData) => {
     const customModules = loadCustomModules();
     const moduleKey = `custom_${moduleData.key}`;
     
+    if (APP_CONFIG[moduleKey] || customModules[moduleKey]) {
+         throw new Error(`Module key "${moduleData.key}" already exists.`);
+    }
+
     const componentType = AVAILABLE_COMPONENT_TYPES[moduleData.componentType];
     if (!componentType) {
         throw new Error('Invalid component type');
@@ -429,7 +433,7 @@ export const createCustomModule = (moduleData) => {
         isCustom: true,
         createdDate: new Date().toISOString(),
         description: moduleData.description || '',
-        fields: moduleData.fields || []
+        fields: moduleData.fields || [] // Placeholder for future custom field definitions
     };
 
     customModules[moduleKey] = newModule;
@@ -446,12 +450,18 @@ export const getCustomModules = () => {
 // Delete a custom module
 export const deleteCustomModule = (moduleKey) => {
     const customModules = loadCustomModules();
+    const moduleConfig = customModules[moduleKey];
+
+    if (!moduleConfig) {
+        console.warn(`Attempted to delete non-existent custom module: ${moduleKey}`);
+        return;
+    }
+
     delete customModules[moduleKey];
     saveCustomModules(customModules);
     
     // Also clear the module's data from localStorage
-    const moduleConfig = customModules[moduleKey];
-    if (moduleConfig && moduleConfig.storageKey) {
+    if (moduleConfig.storageKey) {
         localStorage.removeItem(moduleConfig.storageKey);
     }
 };
@@ -472,16 +482,50 @@ export const importCustomModules = (jsonData) => {
     try {
         const importData = JSON.parse(jsonData);
         if (!importData.modules) {
-            throw new Error('Invalid import format');
+            throw new Error('Invalid import format: Missing "modules" key.');
         }
         
         const customModules = loadCustomModules();
-        Object.assign(customModules, importData.modules);
+        const importedKeys = [];
+        const failedKeys = [];
+
+        for (const key in importData.modules) {
+            if (Object.prototype.hasOwnProperty.call(importData.modules, key)) {
+                const module = importData.modules[key];
+                // Basic validation
+                if (module.title && module.component && module.storageKey) {
+                    // Check if the module key already exists in either built-in or custom modules
+                    if (APP_CONFIG[key] || customModules[key]) {
+                         failedKeys.push({ key, reason: 'Key already exists' });
+                         console.warn(`Import skipped for module key "${key}": Already exists.`);
+                         continue;
+                    }
+                    
+                    // Ensure it's marked as custom and has a custom storage key format
+                    module.isCustom = true;
+                    if (!module.storageKey.startsWith('qms-custom-')) {
+                         module.storageKey = `qms-imported-${key}`;
+                    }
+                    customModules[key] = module;
+                    importedKeys.push(key);
+                } else {
+                    failedKeys.push({ key, reason: 'Missing required fields' });
+                    console.warn(`Import skipped for module key "${key}": Missing required fields.`);
+                }
+            }
+        }
+        
         saveCustomModules(customModules);
         
-        return Object.keys(importData.modules);
+        if (failedKeys.length > 0) {
+             alert(`Imported ${importedKeys.length} modules. Failed to import ${failedKeys.length} modules due to errors (check console for details).`);
+        } else {
+             alert(`Successfully imported ${importedKeys.length} modules.`);
+        }
+
+        return importedKeys; // Return keys of modules that were actually imported
     } catch (error) {
-        throw new Error(`Failed to import modules: ${error.message}`);
+        throw new Error(`Failed to process import file: ${error.message}`);
     }
 };
 
@@ -505,7 +549,8 @@ export const APP_CONFIG = {
 
 // Helper Functions
 export const getModulesByCategory = (category) => {
-    return Object.entries(APP_CONFIG)
+    const allModules = getAllModules(); // Use getAllModules
+    return Object.entries(allModules)
         .filter(([key, config]) => config.category === category)
         .reduce((acc, [key, config]) => {
             acc[key] = config;
@@ -514,13 +559,15 @@ export const getModulesByCategory = (category) => {
 };
 
 export const getAllCategories = () => {
+    const allModules = getAllModules(); // Use getAllModules
     const categories = new Set();
-    Object.values(APP_CONFIG).forEach(config => {
+    Object.values(allModules).forEach(config => {
         if (config.category) categories.add(config.category);
     });
     return Array.from(categories);
 };
 
 export const getModuleConfig = (moduleKey) => {
-    return APP_CONFIG[moduleKey] || null;
+    const allModules = getAllModules(); // Use getAllModules
+    return allModules[moduleKey] || null;
 };

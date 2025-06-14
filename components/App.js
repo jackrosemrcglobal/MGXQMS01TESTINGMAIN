@@ -91,7 +91,7 @@ const NavDropdown = ({ group, enabledModules, activeTab, setActiveTab }) => {
             ${isOpen && groupModules.length > 1 && html`
                 <div className="nav-dropdown-content">
                     ${groupModules.map(key => {
-                        const config = APP_CONFIG[key];
+                        const config = allModules[key]; // Use allModules
                         if (!config) return null;
                         return html`
                             <button
@@ -132,7 +132,7 @@ const FloatingActionButton = ({ activeTab, appConfig, onQuickAction }) => {
     const config = appConfig[activeTab];
     if (!config) return null;
 
-    const canAdd = ['ChecklistWrapper', 'ChecklistGenerator', 'RiskAssessment', 'ApprovedManufacturerList', 
+    const canAdd = ['ChecklistWrapper', 'ChecklistGenerator', 'RiskAssessment', 'ApprovedManufacturerList',
                     'CorrectiveActionRequest', 'AuditFindingsList', 'ActionItemList', 'DocumentVersionControl',
                     'QcTestResultsList', 'ChangeRequestForm', 'PreventiveActionRequest', 'InternalAuditScheduler',
                     'SupplierScorecard', 'ControlChart', 'TrainingRecords'].includes(config.component);
@@ -193,7 +193,7 @@ const FloatingActionButton = ({ activeTab, appConfig, onQuickAction }) => {
                     </button>
                 </div>
             `}
-            <button 
+            <button
                 className="fab"
                 onClick=${() => setIsMenuOpen(!isMenuOpen)}
                 aria-label="Quick actions menu"
@@ -236,7 +236,7 @@ const GlobalSearch = ({ isOpen, onClose, dashboardData, setActiveTab }) => {
                 if (data.risks) {
                     // Risk assessment data
                     data.risks.forEach(item => {
-                        if (item.description?.toLowerCase().includes(term) || 
+                        if (item.description?.toLowerCase().includes(term) ||
                             item.mitigation?.toLowerCase().includes(term)) {
                             results.push({
                                 type: 'Risk',
@@ -506,10 +506,11 @@ export const App = () => {
     const [enabledModules, setEnabledModules] = useState(() => {
         try {
             const storedModules = localStorage.getItem(LOCAL_STORAGE_MODULES_KEY);
-            return storedModules ? JSON.parse(storedModules) : [];
+            // Default to NO modules enabled if nothing is stored, otherwise use stored
+            return storedModules ? JSON.parse(storedModules) : []; // Default []
         } catch (e) {
             console.error('Failed to parse enabled modules from localStorage', e);
-            return [];
+            return []; // Default [] on error
         }
     });
 
@@ -522,6 +523,9 @@ export const App = () => {
         
         // Listen for custom module changes
         window.addEventListener('storage', refreshModules);
+        // Also run once on mount in case custom modules changed in another tab
+        refreshModules();
+
         return () => window.removeEventListener('storage', refreshModules);
     }, []);
 
@@ -542,7 +546,7 @@ export const App = () => {
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (moreMenuRef.current && !moreMenuRef.current.contains(event.target)) {
-                setMoreMenuOpen(false);
+                // Removed setMoreMenuOpen - this component doesn't have that state anymore
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
@@ -551,12 +555,23 @@ export const App = () => {
         };
     }, [moreMenuRef]);
 
+     // Close overlays/sidebar when clicking outside them
+     useEffect(() => {
+        const handleClickOutside = (event) => {
+            // Logic for closing sidebar is in AdminSidebar.js now
+            // Logic for closing search/shortcuts is in those components (modal click handler)
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
     // Load all module data for the dashboard summary
     useEffect(() => {
         const allData = {};
+        // Only load data for enabled modules
         for (const key of enabledModules) {
-            const config = allModules[key]; // Use allModules instead of APP_CONFIG
-            if (!config) continue;
+             const config = allModules[key];
+             if (!config) continue; // Skip if module is somehow enabled but doesn't exist
 
             try {
                 const storedData = localStorage.getItem(config.storageKey);
@@ -575,6 +590,16 @@ export const App = () => {
     // Global keyboard shortcuts
     useEffect(() => {
         const handleKeyDown = (e) => {
+            // Prevent shortcuts when inputs/textareas are focused
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+                 // Allow Escape to close inputs/selects without preventing default
+                 if (e.key === 'Escape') {
+                    e.target.blur(); // unfocus the element
+                    // Allow global Escape handler to then close overlays
+                 }
+                 return;
+            }
+
             // Ctrl+K or Cmd+K to open search
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault();
@@ -589,6 +614,7 @@ export const App = () => {
             if (e.key === 'Escape') {
                 setSearchOpen(false);
                 setShortcutsHelpOpen(false);
+                setSidebarOpen(false); // Also close sidebar
             }
             // Ctrl+N or Cmd+N to add new item (if on a module page)
             if ((e.ctrlKey || e.metaKey) && e.key === 'n' && activeTab !== 'dashboard') {
@@ -652,68 +678,36 @@ export const App = () => {
                  return;
             }
 
-            switch (config.component) {
-                case 'ChecklistWrapper':
-                    sheetName = "Checklist";
-                    const hasReference = data.length > 0 && data.some(i => i.hasOwnProperty('reference'));
-                    dataToExport = data.map(item => {
-                        const base = { id: item.id, text: item.text };
-                        if (hasReference) base.reference = item.reference;
-                        return { ...base, completed: item.completed, status: item.status, comments: item.comments, actions: item.actions };
-                    });
-                    break;
-                case 'RiskAssessment':
-                    sheetName = "Risks";
-                    dataToExport = data.risks ? data.risks.map(r => ({ id: r.id, description: r.description, severity: r.severity, likelihood: r.likelihood, mitigation: r.mitigation })) : [];
-                    break;
-                case 'ApprovedManufacturerList':
-                    sheetName = "Manufacturers";
-                    dataToExport = data;
-                    break;
-                case 'CorrectiveActionRequest':
-                    sheetName = "CARs";
-                    dataToExport = data;
-                    break;
-                case 'AuditFindingsList':
-                    sheetName = "AuditFindings";
-                    dataToExport = data;
-                    break;
-                case 'DocumentVersionControl':
-                    sheetName = "Documents";
-                    dataToExport = data;
-                    break;
-                case 'QcTestResultsList':
-                    sheetName = "QC_Results";
-                    dataToExport = data;
-                    break;
-                case 'ChangeRequestForm':
-                    sheetName = "ChangeRequests";
-                    dataToExport = data;
-                    break;
-                case 'PreventiveActionRequest':
-                    sheetName = "PARs";
-                    dataToExport = data;
-                    break;
-                case 'InternalAuditScheduler':
-                    sheetName = "AuditSchedules";
-                    dataToExport = data;
-                    break;
-                case 'SupplierScorecard':
-                    sheetName = "SupplierScorecards";
-                    dataToExport = data;
-                    break;
-                case 'ControlChart':
-                    sheetName = "ControlChartData";
-                    dataToExport = data.dataPoints ? data.dataPoints.map((value, index) => ({ process: data.processName, sample: index + 1, value })) : [];
-                    break;
-                case 'TrainingRecords':
-                    sheetName = "TrainingRecords";
-                    dataToExport = data;
-                    break;
-                default:
-                    console.warn(`Dashboard export not implemented for component type: ${config.component}`);
-                    return;
+            // Handle specific data structures (like Risk Assessment or Control Chart)
+            if (config.component === 'RiskAssessment') {
+                 dataToExport = data.risks ? data.risks.map(r => ({ id: r.id, description: r.description, severity: r.severity, likelihood: r.likelihood, mitigation: r.mitigation })) : [];
+                 sheetName = "Risks";
+            } else if (config.component === 'ControlChart') {
+                 dataToExport = data.dataPoints ? data.dataPoints.map((value, index) => ({ process: data.processName, sample: index + 1, value })) : [];
+                 sheetName = "ControlChartData";
+            } else {
+                 // Default handling for array-based components
+                 if (Array.isArray(data)) {
+                     // Special handling for Checklists to include reference column if present
+                     if (['ChecklistWrapper', 'ChecklistGenerator'].includes(config.component)) {
+                         const hasReference = data.length > 0 && data.some(i => i.hasOwnProperty('reference'));
+                         dataToExport = data.map(item => {
+                             const base = { id: item.id, text: item.text };
+                             if (hasReference) base.reference = item.reference;
+                             return { ...base, completed: item.completed, status: item.status, comments: item.comments, actions: item.actions };
+                         });
+                         sheetName = config.title.replace(/\s+/g, ''); // Use module title as sheet name
+                     } else {
+                         dataToExport = data; // Assume array of objects works directly for others
+                         sheetName = config.title.replace(/\s+/g, ''); // Use module title as sheet name
+                     }
+                 } else {
+                     console.warn(`Dashboard export not implemented for component type: ${config.component} with non-array data structure.`);
+                     alert('Export not supported for this module type from the dashboard.');
+                     return;
+                 }
             }
+
 
             if (!dataToExport || dataToExport.length === 0) {
                 alert('No data to export.');
@@ -734,29 +728,36 @@ export const App = () => {
     const handleQuickAction = (action) => {
         // Trigger the action by finding and clicking the appropriate button
         // This is a simple implementation that finds buttons by their text content
-        const buttons = document.querySelectorAll('button');
+        // It's important that these buttons exist and are accessible on the page
         
+        // Use document.querySelector for more specific targeting if needed,
+        // but text content is often sufficient for simple actions like 'Add Item'
+        let buttonToClick = null;
+
         switch (action) {
             case 'add':
-                const addButtons = Array.from(buttons).find(btn => 
-                    btn.textContent.includes('Add') && 
-                    !btn.textContent.includes('Import') && 
-                    !btn.className.includes('fab')
-                );
-                if (addButtons) addButtons.click();
+                // Look for a button that contains "Add" but isn't the FAB itself
+                buttonToClick = document.querySelector('.component-showcase button.btn');
                 break;
             case 'import':
-                const importButton = Array.from(buttons).find(btn => btn.textContent === 'Import');
-                if (importButton) importButton.click();
+                // Look for the import button specifically within the controls
+                buttonToClick = document.querySelector('.component-showcase .controls-container button.control-btn:contains("Import")');
                 break;
             case 'export':
-                const exportButtons = Array.from(buttons).filter(btn => 
-                    btn.textContent.includes('JSON') || 
-                    btn.textContent.includes('CSV') || 
-                    btn.textContent.includes('XLSX')
-                );
-                if (exportButtons.length > 0) exportButtons[0].click(); // Default to first export option
+                // Look for any export button (JSON, CSV, XLSX, PDF, XML, HTML) within the controls
+                // Prioritize XLSX for dashboard export consistency, but any is fine for quick action
+                 const exportButtons = document.querySelectorAll('.component-showcase .controls-container .export-controls button.control-btn');
+                 // Find XLSX first, otherwise the first available
+                 buttonToClick = Array.from(exportButtons).find(btn => btn.textContent.includes('XLSX')) || exportButtons[0];
                 break;
+        }
+        
+        if (buttonToClick) {
+            buttonToClick.click();
+        } else {
+            console.warn(`Quick action "${action}" button not found for module "${activeTab}"`);
+            // Optionally provide user feedback if the action failed
+            // alert(`Action "${action}" is not available for this module or button not found.`);
         }
     };
 
@@ -786,11 +787,6 @@ export const App = () => {
         return Object.keys(allModules).filter(key => enabledModules.includes(key)); // Use allModules
     }, [enabledModules, allModules]);
 
-    const MAX_PRIMARY_TABS = 3;
-    const primaryTabs = visibleModules.slice(0, MAX_PRIMARY_TABS);
-    const dropdownTabs = visibleModules.slice(MAX_PRIMARY_TABS);
-    const isDropdownActive = dropdownTabs.includes(activeTab);
-
     return html`
         <div className=${`app-container ${isSidebarOpen ? 'sidebar-open' : ''}`}>
             <${AdminSidebar} 
@@ -800,10 +796,19 @@ export const App = () => {
                 enabledModules=${enabledModules}
                 onToggleModule=${handleToggleModule}
                 groups=${GROUPS}
+                onModuleCreated=${() => setAllModules(getAllModules())} // Pass callback to refresh modules
             />
             <header className="app-header">
                 <h1>MRC Global QMS v0.1</h1>
                 <div className="header-controls">
+                    <a 
+                        href="#" 
+                        className="control-btn header-link-button" 
+                        aria-label="Useful Links (Placeholder)"
+                        title="Useful Links (Placeholder)"
+                    >
+                        Links
+                    </a>
                     <button
                         className="theme-toggle search-toggle"
                         onClick=${() => setSearchOpen(true)}
@@ -816,6 +821,7 @@ export const App = () => {
                         className="theme-toggle"
                         onClick=${() => setSidebarOpen(true)}
                         aria-label="Open settings"
+                         title="Settings (Ctrl+,)"
                     >
                         <${CogIcon} />
                     </button>
@@ -823,6 +829,7 @@ export const App = () => {
                         className="theme-toggle"
                         onClick=${toggleTheme}
                         aria-label=${`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                         title="Toggle Theme"
                     >
                         ${theme === 'light' ? html`<${MoonIcon} />` : html`<${SunIcon} />`}
                     </button>
@@ -830,7 +837,7 @@ export const App = () => {
             </header>
             <nav className="app-nav">
                  <button
-                    className="nav-button"
+                    className=${`nav-button ${activeTab === 'dashboard' ? 'active' : ''}`}
                     aria-current=${activeTab === 'dashboard' ? 'page' : undefined}
                     onClick=${() => setActiveTab('dashboard')}
                 >Dashboard</button>
@@ -859,7 +866,7 @@ export const App = () => {
             />
             <${FloatingActionButton} 
                 activeTab=${activeTab} 
-                appConfig=${APP_CONFIG} 
+                appConfig=${allModules} // Use allModules
                 onQuickAction=${handleQuickAction}
             />
         </div>
