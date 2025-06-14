@@ -802,7 +802,9 @@ export const App = () => {
                 <h1>MRC Global QMS v0.1</h1>
                 <div className="header-controls">
                     <a 
-                        href="#" 
+                        href="https://www.google.com" 
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="control-btn header-link-button" 
                         aria-label="Useful Links (Placeholder)"
                         title="Useful Links (Placeholder)"
